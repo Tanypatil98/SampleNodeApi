@@ -1,0 +1,45 @@
+{
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "target": "es6",
+        "noImplicitAny": false,
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "outDir": "./dist",
+        "baseUrl": "./src",
+        "paths": {
+            "*": [
+                "node_modules/*",
+                "src/types/*"
+            ],
+            "@controllers/*": [
+                "./src/controllers/*"
+            ],
+            "@uploads/*": [
+                "./src/uploads/*"
+            ],
+            "@models/*": [
+                "./src/models/*"
+            ],
+            "@services/*": [
+                "./src/services/*"
+            ],
+            "@repository/*": [
+                "./src/repository/*"
+            ],
+            "@api/*": [
+                "./src/*"
+            ]
+        },
+        "typeRoots": [
+            "node_modules/@types"
+        ],
+        "emitDecoratorMetadata": true
+    },
+    "include": [
+        "src/**/*"
+    ]
+}
