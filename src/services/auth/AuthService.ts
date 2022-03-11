@@ -200,7 +200,7 @@ export class AuthService {
             }
             let existingUserNumber;
             try {
-                const condition = { email: email }
+                const condition = { mobileNumber: mobileNumber }
                 existingUserNumber = await authRepo.findUser(condition);
             }
             catch (err) {
@@ -281,6 +281,38 @@ export class AuthService {
         }
     }
 
+    async forgotPassword(user: any) {
+        try {
+            logger.info("Started Execution for Forgot Password ==>");
+            const { mobileNumber, password } = user;
+            const responseObj = new ReponseMessage();
+            const authRepo = new AuthRepository();
+            let existingUser;
+            try {
+                const condition = { mobileNumber: mobileNumber }
+                existingUser = await authRepo.findUser(condition);
+            }
+            catch (err) {
+                logger.error("messerr");
+                throw err;
+            }
+            if (!existingUser) {
+                logger.error('User not Exist.');
+                responseObj.httpStatusCode = 401;
+                responseObj.message = "Plaese Register User.";
+
+                throw new AppError(responseObj.message);
+            }
+            let response =await this.updateUserById(existingUser._id, {newPassword: password});
+            return "Password Successfully Updated.";
+        } catch (error) {
+            logger.error(
+                `Error in findUserById method of AuthService ${error}`
+            );
+            throw error;
+        }
+    }
+
     async deleteUserById(userId: any) {
         try {
             logger.info("Started Execution for findUserById ==>");
@@ -297,7 +329,7 @@ export class AuthService {
     async updateUserById(userId: any, user: any) {
         try {
             logger.info("Started Execution for updateUserById ==>");
-            const { name, email, mobileNumber, newPassword } = user.body;
+            const { name, email, mobileNumber, newPassword } = user;
             const responseObj = new ReponseMessage();
             const authRepo = new AuthRepository();
             let userById;

@@ -40,22 +40,23 @@ export default class AuthController extends BaseController {
         }
     }
 
-    // async forgotPassword(req: Request, res: Response, next: NextFunction) {
-    //     try {
-    //         logger.info(" Starting Forgot Passord");
-    //         const authService = new AuthService();
-    //         const responseObj = new ReponseMessage();
-    //         const data = await authService.forgotPassword(req.body);
-    //         logger.debug(data);
-    //         if (data) {
-    //             responseObj.data = data;
-    //             BaseController.createResponse.success(res, responseObj);
-    //         }
-    //     } catch (error) {
-    //         logger.error(error);
-    //         next(error);
-    //     }
-    // }
+    async forgotPassword(req: Request, res: Response, next: NextFunction) {
+        try {
+            logger.info(" Starting Forgot Passord");
+            const authService = new AuthService();
+            const responseObj = new ReponseMessage();
+            const data = await authService.forgotPassword(req.body);
+            logger.debug(data);
+            if (data) {
+                responseObj.httpStatusCode = 200;
+                responseObj.message = data;
+                BaseController.createResponse.success(res, responseObj);
+            }
+        } catch (error) {
+            logger.error(error);
+            next(error);
+        }
+    }
 
     async getUserById(req: Request, res: Response, next: NextFunction) {
         try {
@@ -81,7 +82,7 @@ export default class AuthController extends BaseController {
             const responseObj = new ReponseMessage();
             const authService = new AuthService();
             responseObj.httpStatusCode = 200;
-            responseObj.message = await authService.updateUserById(req.params.uid, req);
+            responseObj.message = await authService.updateUserById(req.params.uid, req.body);
             BaseController.createResponse.success(res, responseObj);
         } catch (error) {
             logger.error(
