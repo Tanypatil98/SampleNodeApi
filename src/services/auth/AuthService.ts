@@ -247,18 +247,18 @@ export class AuthService {
                 logger.error("err1");
                 throw new AppError(err);
             }
-            // let token;
-            // try {
-            //     token = jwt.sign({ userId: createdUser.id, email: createdUser.email },
-            //         process.env.JWT_KEY,
-            //         { expiresIn: '24h' });
-            // } catch (err) {
-            //     responseObj.httpStatusCode = 500;
-            //     responseObj.message = "singn up Failed.plese try again";
+            let token;
+            try {
+                token = jwt.sign({ userId: createdUser.id, email: createdUser.email },
+                    process.env.JWT_KEY,
+                    { expiresIn: '24h' });
+            } catch (err) {
+                responseObj.httpStatusCode = 500;
+                responseObj.message = "singn up Failed.plese try again";
 
-            //     throw new AppError(responseObj.message);
-            // }
-            const res = { userId: createdUser.id, email: createdUser.email };
+                throw new AppError(responseObj.message);
+            }
+            const res = { user:{id:createdUser.id, name: createdUser.name, email: createdUser.email, mobileNumber: createdUser.mobileNumber},token:token };
             return res;
         } catch (error) {
             logger.error(

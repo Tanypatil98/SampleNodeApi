@@ -32,6 +32,7 @@ export default class AuthController extends BaseController {
             if (data) {
                 responseObj.httpStatusCode = 200;
                 responseObj.message = "Registered Successfully";
+                responseObj.data = data;
                 BaseController.createResponse.success(res, responseObj);
             }
         } catch (error) {
