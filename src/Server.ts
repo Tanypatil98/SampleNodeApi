@@ -15,6 +15,7 @@ const server = http.createServer(application);
 
 
 const listen = () => {
+  logger.info(`${config.apiName} is running in IP: ${HOST}  PORT : ${PORT}`);
   server.listen(PORT,
     () => {
       logger.info(`${config.apiName} is running in IP: ${HOST}  PORT : ${PORT}`);
