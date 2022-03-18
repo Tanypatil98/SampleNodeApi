@@ -5,8 +5,12 @@ import { videoCollection } from "../../../constants/CollectionConstants";
 export const VideoSchema = new Schema({
     title: String,
     description: String,
-    image: String,
+    videoPoster: String,
     videoUrl: String,
+    duration: String,
+    isNewVideo: Boolean,
+    answerSubmitted: Boolean,
+    questions: Array,
 });
 
 export type UserDocument = Document & IVideo;

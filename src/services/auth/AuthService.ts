@@ -67,7 +67,7 @@ export class AuthService {
 
                 throw new AppError(responseObj.message);
             }
-            const res = { userId: identifiedUser.id, email: identifiedUser.email, token: token };
+            const res = { userId: identifiedUser.id, email: identifiedUser.email,name : identifiedUser.name, token: token };
             return res;
         } catch (error) {
             logger.error(`Error in login method of AuthService ${error}`);
@@ -379,7 +379,7 @@ export class AuthService {
                 logger.error("err1");
                 throw new AppError(err);
             }
-            const res = "User Updated Successfuly";
+            const res = "User Profile Updated Successfully";
             return res;
         } catch (error) {
             logger.error(

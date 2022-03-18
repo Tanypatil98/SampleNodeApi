@@ -13,7 +13,7 @@ export class AuthRoutes {
                 router.post("/verifyOtp", controller.verifyOtp);
                 router.post("/login", controller.signIn);
                 router.post("/forgot", controller.forgotPassword);
-                router.put("/user/:uid", authorization(), fileUpload.single('image'), controller.updateUserById);
+                router.put("/user/:uid", authorization(), controller.updateUserById);
                 router.delete("/user/:uid", authorization(), controller.deleteUserById);
                 router.get("/user/:uid",authorization(), controller.getUserById);
                 return router;

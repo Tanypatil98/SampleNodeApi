@@ -10,16 +10,32 @@ const videoSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    image:{
+    videoPoster:{
         type:String,
         required:true,
     },
     videoUrl:{
         type:String,
         required:true,
+    },
+    duration:{
+        type:String,
+        required:true,
+    },
+    isNewVideo:{
+        type:Boolean,
+        required:true,
+    },
+    answerSubmitted:{
+        type:Boolean,
+        required:true,
+    },
+    questions: {
+        type: Array,
+        required:true,
     }
 },
 { timestamps: true });
 
-const Video = mongoose.model<IVideo & mongoose.Document>('Video', videoSchema);
+const Video = mongoose.model<IVideo & mongoose.Document>('videos', videoSchema);
 export default Video;

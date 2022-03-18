@@ -11,7 +11,7 @@ export default class AuthController extends BaseController {
     async getVideos(req: Request, res: Response, next: NextFunction) {
         try {
             logger.info("Started Execution for findVideos ==>");
-            const videos = await videoService.getVideos(req.body);
+            const videos = await videoService.getVideos(req);
             res.setHeader('x-total-count', videos.length);
             responseObj.httpStatusCode = 200;
             responseObj.data = videos;
@@ -39,6 +39,24 @@ export default class AuthController extends BaseController {
         }
 
     };
+
+    async videoAns(req: Request, res: Response, next: NextFunction) {
+
+        try {
+            logger.info("Started Execution for adding Video Anser ==>");
+            await videoService.videoAns(req);
+            responseObj.httpStatusCode = 200;
+            responseObj.message = "Video Answer Submited Succesfully.";
+            BaseController.createResponse.success(res, responseObj);
+        } catch (error) {
+            logger.error(
+                `Error in Adding Video ${error}`
+            );
+            return next(error);
+        }
+
+    };
+
     async getVideoById(req: Request, res: Response, next: NextFunction) {
         try {
             logger.info("Started Execution for findVideoById ==>");

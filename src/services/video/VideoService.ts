@@ -3,8 +3,11 @@ import AppError from "../../core/utility/AppError";
 import logger from "../../core/Logger";
 import Video from "../../models/schema/video/Video";
 import ReponseMessage from "../../core/utility/ReponseMessage";
+import { AnsRepository } from "../../repository/ans/AnswerRepositoy";
+import  Ans  from "../../models/schema/ans/AnsIn";
 const responseObj = new ReponseMessage();
 const videoRpo = new VideoRepository();
+const ansRpo = new AnsRepository();
 
 export class VideoService {
     async addVideo (req: any) {
@@ -49,10 +52,74 @@ export class VideoService {
             logger.info("Started Execution for findVideos ==>");
             var perPage = 10
             , page = Math.max(0, req.start);
-            return await videoRpo.findVideos(perPage, page);
+            let videos = await videoRpo.findVideos(perPage, page);
+            let existingAns;
+            try {
+                const condition = { userId: req.user._id}
+                existingAns = await ansRpo.findVideoUser(condition);
+            }
+            catch (err) {
+                logger.error("messerr");
+                throw err;
+            }
+            if (existingAns) {
+                videos?.map((objVideo) => {
+                    existingAns?.map((obj) => {
+                        if(obj.videoId === objVideo._id.toString()){
+                            objVideo["answerSubmitted"] = true;
+                        }
+                        return true;
+                    });
+                    return true;
+                });
+            }
+            return videos;
         } catch (error) {
             logger.error(
                 `Error in findVideos method of VideoService ${error}`
+            );
+            throw error;
+        }
+    }
+
+    async videoAns(req: any) {
+        try {
+            logger.info("Started Execution for videoAns ==>");
+            const { videoId, answerId } = req.body;
+            let existingAns;
+            try {
+                const condition = { userId: req.user._id, videoId: videoId }
+                existingAns = await ansRpo.findAns(condition);
+            }
+            catch (err) {
+                logger.error("messerr");
+                throw err;
+            }
+            if (existingAns) {
+                logger.error('Answer Exist.');
+                responseObj.httpStatusCode = 401;
+                responseObj.message = "Answer Alredy Exist";
+
+                throw new AppError(responseObj.message);
+            }
+            const createdAns = new Ans({
+                userId: req.user._id,
+                videoId: videoId,
+                answerId: answerId,
+            });
+            try{
+                createdAns.save((err: any, user: any) => {
+                    if (err) {
+                        throw new AppError(err);
+                    }
+                });
+            } catch (error) {
+                throw new AppError("Answer Adding failed");
+            }
+            return "Successfully Added";
+        } catch (error) {
+            logger.error(
+                `Error in videoAns method of VideoService ${error}`
             );
             throw error;
         }
