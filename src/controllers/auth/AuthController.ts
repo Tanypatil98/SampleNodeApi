@@ -76,6 +76,23 @@ export default class AuthController extends BaseController {
         }
     };
 
+    async getReferral(req: Request, res: Response, next: NextFunction) {
+        try {
+            logger.info("Started Execution for findUserReferral ==>");
+            logger.info(req.params.uid);
+            const responseObj = new ReponseMessage();
+            const authService = new AuthService();
+            responseObj.httpStatusCode = 200;
+            responseObj.data = await authService.getReferral(req.params.uid);
+            BaseController.createResponse.success(res, responseObj);
+        } catch (error) {
+            logger.error(
+                `Error in find User Referral ${error}`
+            );
+            return next(error);
+        }
+    };
+
     async updateUserById(req: Request, res: Response, next: NextFunction) {
         try {
             logger.info("Started Execution for findUserById ==>");

@@ -19,6 +19,12 @@ const userSchema = new mongoose.Schema({
         type:String,
         minlength:6
     },
+    referral_id:{
+        type:String,
+    },
+    referrer:{
+        type:String,
+    },
     
 },
 { timestamps: true });

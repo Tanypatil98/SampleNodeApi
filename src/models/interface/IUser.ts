@@ -5,4 +5,6 @@ export interface IUser {
     email: string;
     mobileNumber: string;
     password: string;
+    referral_id: string;
+    referrer: string;
 }

@@ -11,7 +11,7 @@ const ansRpo = new AnsRepository();
 
 export class VideoService {
     async addVideo (req: any) {
-        const { title,description,videoUrl } = req.body;
+        const { title,description,videoUrl, videoPoster,duration,questions,isNewVideo,answerSubmitted } = req.body;
         let existingVideo;
         try {
             existingVideo = await videoRpo.findVideo({ title: title });
@@ -30,13 +30,18 @@ export class VideoService {
         const createdVideo = new Video({
             title,
             description,
-            image:req.file.path,
-            videoUrl
+            videoUrl,
+            videoPoster,
+            duration,
+            answerSubmitted,
+            questions,
+            isNewVideo
         });
         
         try {
             
-           return await createdVideo.save();
+           await createdVideo.save();
+           return true;
         
         }
         catch(err){
@@ -51,11 +56,11 @@ export class VideoService {
         try {
             logger.info("Started Execution for findVideos ==>");
             var perPage = 10
-            , page = Math.max(0, req.start);
+            , page = Math.max(0, req.body.start);
             let videos = await videoRpo.findVideos(perPage, page);
             let existingAns;
             try {
-                const condition = { userId: req.user._id}
+                const condition = { userId: req.body.userId}
                 existingAns = await ansRpo.findVideoUser(condition);
             }
             catch (err) {

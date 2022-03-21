@@ -10,6 +10,14 @@ export class AuthRepository {
         return await User.findOne(condition, '-password');
     }
 
+    async findAllUser() {
+        return await User.find();
+    }
+
+    async findReferral(condition: any) {
+        return await User.find(condition);
+    }
+
     async deleteUser(condition: any) {
         return await User.deleteOne(condition);
     }

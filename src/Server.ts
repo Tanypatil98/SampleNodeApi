@@ -7,7 +7,7 @@ import dbConnection from "./core/DbConnection";
 // import customerDbConnection from "./core/CustomerDbConnection";
 import logger from "./core/Logger";
 
-const PORT = process.env.PORT || "5000";
+const PORT = process.env.PORT || "80";
 const HOST = process.env.HOST || config.host;
 
 const application = new app().init();
@@ -15,7 +15,6 @@ const server = http.createServer(application);
 
 
 const listen = () => {
-  logger.info(`${config.apiName} is running in IP: ${HOST}  PORT : ${PORT}`);
   server.listen(PORT,
     () => {
       logger.info(`${config.apiName} is running in IP: ${HOST}  PORT : ${PORT}`);

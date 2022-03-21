@@ -8,7 +8,8 @@ export class VideoRoutes {
         static configureRoutes() {
                 const controller = new VideoController();
                 const router = express.Router();
-                router.post("/", authorization(), controller.getVideos);
+                router.post("/", controller.getVideos);
+                router.post("/newVideo", authorization(), controller.video);
                 router.post("/answer", authorization(), controller.videoAns);
                 // router.get("/:vid",authorization(),  controller.getVideoById);
                 // router.put("/:vid",authorization(), fileUpload.single('image'), controller.updateVideoById);

@@ -7,6 +7,8 @@ export const UserSchema = new Schema({
     name: String,
     mobileNumber: String,
     password: String,
+    referral_id: String,
+    referrer: String,
 });
 
 export type UserDocument = Document & IUser;

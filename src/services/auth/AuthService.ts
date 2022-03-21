@@ -179,7 +179,7 @@ export class AuthService {
     async registerAdmin(user: any) {
         try {
             logger.info("Started Execution for registerUser ==>");
-            const { name, email, mobileNumber, password } = user;
+            const { name, email, mobileNumber, password, referral_id } = user;
             const responseObj = new ReponseMessage();
             const authRepo = new AuthRepository();
             let existingUser;
@@ -214,6 +214,14 @@ export class AuthService {
 
                 throw new AppError(responseObj.message);
             }
+            let lengthUser;
+            try {
+                lengthUser = await authRepo.findAllUser();
+            }
+            catch (err) {
+                logger.error("messerr");
+                throw err;
+            }
             try {
                 await this.checkPassword(password);
             } catch (err) {
@@ -228,13 +236,30 @@ export class AuthService {
 
                 throw new AppError(responseObj.message);
             }
-            const createdUser = new User({
+            let createdUser;
+            if(referral_id && /TRY/.test(referral_id)){
+                createdUser = new User({
+                    name,
+                    email,
+                    mobileNumber,
+                    password: hashedPassword,
+                    referral_id: `TRY0${lengthUser.length+1}`,
+                    referrer: referral_id
+                });    
+            }else  if(!referral_id){
+            createdUser = new User({
                 name,
                 email,
                 mobileNumber,
                 password: hashedPassword,
+                referral_id: `TRY0${lengthUser.length+1}`
             });
+        }else{
+            responseObj.httpStatusCode = 401;
+                responseObj.message = "User referral id not Exist";
 
+                throw new AppError(responseObj.message);
+        }
             try {
                 createdUser.save((err: any, user: any) => {
                     if (err) {
@@ -258,7 +283,7 @@ export class AuthService {
 
                 throw new AppError(responseObj.message);
             }
-            const res = { user:{id:createdUser.id, name: createdUser.name, email: createdUser.email, mobileNumber: createdUser.mobileNumber},token:token };
+            const res = { user:{id:createdUser.id, name: createdUser.name, email: createdUser.email, mobileNumber: createdUser.mobileNumber, referral_id: createdUser.referral_id},token:token };
             return res;
         } catch (error) {
             logger.error(
@@ -276,6 +301,20 @@ export class AuthService {
         } catch (error) {
             logger.error(
                 `Error in findUserById method of AuthService ${error}`
+            );
+            throw error;
+        }
+    }
+
+    async getReferral(userId: any) {
+        try {
+            logger.info("Started Execution for findReferral ==>");
+            const authRepo = new AuthRepository();
+            let userDetail = await authRepo.findUserById({ _id: userId });
+            return await authRepo.findReferral({ referrer: userDetail.referral_id });
+        } catch (error) {
+            logger.error(
+                `Error in findReferrald method of AuthService ${error}`
             );
             throw error;
         }
