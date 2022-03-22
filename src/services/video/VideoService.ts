@@ -55,9 +55,10 @@ export class VideoService {
     async getVideos (req: any) {
         try {
             logger.info("Started Execution for findVideos ==>");
-            var perPage = 10
-            , page = Math.max(0, req.body.start);
-            let videos = await videoRpo.findVideos(perPage, page);
+            // var perPage = 10
+            // , page = Math.max(0, req.body.start);
+            // let videos = await videoRpo.findVideos(perPage, page);
+            let videos = await videoRpo.findVideos();
             let existingAns;
             try {
                 const condition = { userId: req.body.userId}

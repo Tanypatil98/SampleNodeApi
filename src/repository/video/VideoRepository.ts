@@ -7,8 +7,11 @@ export class VideoRepository {
         return await Video.findOne(condition);
     }
 
-    async findVideos(perPage: number, page:number) {
-        return await Video.find({}).skip((page-1)* perPage).limit(perPage).sort({ createdAt: 'desc'});
+    // async findVideos(perPage: number, page:number) {
+    //     return await Video.find({}).skip((page-1)* perPage).limit(perPage).sort({ createdAt: 'desc'});
+    // }
+    async findVideos() {
+        return await Video.find({}).sort({ createdAt: 'desc'});
     }
 
     async deleteVideo(condition: any) {
