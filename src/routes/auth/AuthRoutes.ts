@@ -15,7 +15,7 @@ export class AuthRoutes {
                 router.post("/forgot", controller.forgotPassword);
                 router.put("/user/:uid", authorization(), controller.updateUserById);
                 router.delete("/user/:uid", authorization(), controller.deleteUserById);
-                router.get("/user/:uid", controller.getUserById);
+                router.get("/user/:uid",authorization(), controller.getUserById);
                 router.get("/getReferral/:uid",authorization(), controller.getReferral);
                 return router;
         }
