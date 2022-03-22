@@ -14,6 +14,7 @@ export default class AuthController extends BaseController {
             const videos = await videoService.getVideos(req);
             res.setHeader('x-total-count', videos.length);
             responseObj.httpStatusCode = 200;
+            responseObj.message = "Videos Succesfully.";
             responseObj.data = videos;
             BaseController.createResponse.success(res, responseObj);
         } catch (error) {
