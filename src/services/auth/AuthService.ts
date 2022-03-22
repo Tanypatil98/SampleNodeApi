@@ -297,7 +297,19 @@ export class AuthService {
         try {
             logger.info("Started Execution for findUserById ==>");
             const authRepo = new AuthRepository();
-            return await authRepo.findUserById({ _id: userId });
+            let userIdDetails = await authRepo.findUserById({ _id: userId });
+            let token;
+            try {
+                token = jwt.sign({ userId: userIdDetails._id, email: userIdDetails.email },
+                    process.env.JWT_KEY,
+                    { expiresIn: '1h' });
+            } catch (err) {
+                responseObj.httpStatusCode = 500;
+                responseObj.message = err;
+
+                throw new AppError(responseObj.message);
+            }
+            return {userIdDetails:userIdDetails,token: token};
         } catch (error) {
             logger.error(
                 `Error in findUserById method of AuthService ${error}`
