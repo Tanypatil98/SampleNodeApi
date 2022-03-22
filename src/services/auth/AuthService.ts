@@ -67,7 +67,7 @@ export class AuthService {
 
                 throw new AppError(responseObj.message);
             }
-            const res = { userId: identifiedUser.id, email: identifiedUser.email,name : identifiedUser.name,referral_id: identifiedUser.referral_id, token: token };
+            const res = { userId: identifiedUser.id, email: identifiedUser.email,name : identifiedUser.name, token: token };
             return res;
         } catch (error) {
             logger.error(`Error in login method of AuthService ${error}`);
