@@ -47,6 +47,7 @@ export default class AuthController extends BaseController {
             await videoService.videoAns(req);
             responseObj.httpStatusCode = 200;
             responseObj.message = "Video Answer Submited Succesfully.";
+            responseObj.data = [];
             BaseController.createResponse.success(res, responseObj);
         } catch (error) {
             logger.error(

@@ -15,7 +15,7 @@ export class AuthRepository {
     }
 
     async findReferral(condition: any) {
-        return await User.find(condition);
+        return await User.find(condition, '-password');
     }
 
     async deleteUser(condition: any) {
