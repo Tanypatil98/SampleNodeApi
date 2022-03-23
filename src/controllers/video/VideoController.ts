@@ -3,8 +3,10 @@ import ReponseMessage from "../../core/utility/ReponseMessage";
 import logger from "../../core/Logger";
 import { VideoService } from "../../services/video/VideoService";
 import { Request, Response, NextFunction } from "express";
+import { VideoRepository } from "../../repository/video/VideoRepository";
 const responseObj = new ReponseMessage();
 const videoService = new VideoService();
+const videoRpo = new VideoRepository();
 
 export default class AuthController extends BaseController {
 
@@ -12,7 +14,8 @@ export default class AuthController extends BaseController {
         try {
             logger.info("Started Execution for findVideos ==>");
             const videos = await videoService.getVideos(req);
-            res.setHeader('x-total-count', videos.length);
+            let videosLe = await videoRpo.findVideosLength();
+            res.setHeader('x-total-count', videosLe.length);
             responseObj.httpStatusCode = 200;
             responseObj.message = "Videos Succesfully.";
             responseObj.data = videos;
