@@ -5,9 +5,11 @@ import Video from "../../models/schema/video/Video";
 import ReponseMessage from "../../core/utility/ReponseMessage";
 import { AnsRepository } from "../../repository/ans/AnswerRepositoy";
 import  Ans  from "../../models/schema/ans/AnsIn";
+import { AuthRepository } from "../../repository/auth/AuthRepository";
 const responseObj = new ReponseMessage();
 const videoRpo = new VideoRepository();
 const ansRpo = new AnsRepository();
+const authRpo = new AuthRepository();
 
 export class VideoService {
     async addVideo (req: any) {
@@ -55,14 +57,15 @@ export class VideoService {
     async getVideos (req: any) {
         try {
             logger.info("Started Execution for findVideos ==>");
-            // var perPage = 10
-            // , page = Math.max(0, req.body.start);
-            // let videos = await videoRpo.findVideos(perPage, page);
-            let videos = await videoRpo.findVideos();
-            let existingAns;
+            var perPage = 10
+            , page = Math.max(0, req.body.start);
+            let videos = await videoRpo.findVideos(perPage, page);
+            // let videos = await videoRpo.findVideos();
+            let existingAns,existingUser;
             try {
                 const condition = { userId: req.body.userId}
                 existingAns = await ansRpo.findVideoUser(condition);
+                existingUser = await authRpo.findUserById(condition);
             }
             catch (err) {
                 logger.error("messerr");
@@ -79,7 +82,7 @@ export class VideoService {
                     return true;
                 });
             }
-            return videos;
+            return existingUser ? videos : [];
         } catch (error) {
             logger.error(
                 `Error in findVideos method of VideoService ${error}`
