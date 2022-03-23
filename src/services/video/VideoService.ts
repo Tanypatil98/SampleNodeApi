@@ -65,12 +65,13 @@ export class VideoService {
             try {
                 const condition = { userId: req.body.userId}
                 existingAns = await ansRpo.findVideoUser(condition);
-                existingUser = await authRpo.findUserById(condition);
+                existingUser = await authRpo.findUserById({_id: req.body.userId});
             }
             catch (err) {
                 logger.error("messerr");
                 throw err;
             }
+            logger.info(existingUser);
             if (existingAns) {
                 videos?.map((objVideo) => {
                     existingAns?.map((obj) => {
