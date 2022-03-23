@@ -11,6 +11,8 @@ import logger from "../Logger";
 import AppError from "../utility/AppError";
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
+import { AuthRepository } from "../../repository/auth/AuthRepository";
+const authRepo = new AuthRepository();
 
 export const authorization = () => {
     return async (req: Request, res: Response, next: NextFunction) => {
@@ -50,7 +52,8 @@ export const authorization = () => {
                     if (!decode) {
                         throw new AppError(invalidToken);
                     }
-                    const user = await userAuthService.findUserById(decode.userId);
+                    // const user = await userAuthService.findUserById(decode.userId);
+                    const user = await authRepo.findUserById({ _id: decode.userId });
                     logger.info(user);
                     req.user = user; // @inject user in the request Session i.e stateless protocol
                     next(); //@ by pass to the next request or middleware
