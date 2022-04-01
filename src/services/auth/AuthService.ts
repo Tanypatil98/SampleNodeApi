@@ -67,7 +67,7 @@ export class AuthService {
 
                 throw new AppError(responseObj.message);
             }
-            const res = { userId: identifiedUser.id, email: identifiedUser.email,name : identifiedUser.name,referral_id: identifiedUser.referral_id, token: token };
+            const res = { _id: identifiedUser.id, email: identifiedUser.email,name : identifiedUser.name,referral_id: identifiedUser.referral_id, token: token };
             return res;
         } catch (error) {
             logger.error(`Error in login method of AuthService ${error}`);
@@ -283,7 +283,7 @@ export class AuthService {
 
                 throw new AppError(responseObj.message);
             }
-            const res = { user:{id:createdUser.id, name: createdUser.name, email: createdUser.email, mobileNumber: createdUser.mobileNumber, referral_id: createdUser.referral_id},token:token };
+            const res = { user:{_id:createdUser.id, name: createdUser.name, email: createdUser.email, mobileNumber: createdUser.mobileNumber, referral_id: createdUser.referral_id},token:token };
             return res;
         } catch (error) {
             logger.error(

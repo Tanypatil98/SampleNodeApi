@@ -27,6 +27,24 @@ export default class AuthController extends BaseController {
             return next(error);
         }
     };
+
+    async getWinnerList(req: Request, res: Response, next: NextFunction) {
+        try {
+            logger.info("Started Execution for findVideos ==>");
+            const videos = await videoService.getWinnerList(req);
+            logger.info(videos);
+            responseObj.httpStatusCode = 200;
+            responseObj.message = "Video Winners list Succesfully.";
+            responseObj.data = videos;
+            BaseController.createResponse.success(res, responseObj);
+        } catch (error) {
+            logger.error(
+                `Error in find Video Winners list ${error}`
+            );
+            return next(error);
+        }
+    };
+
     async video(req: Request, res: Response, next: NextFunction) {
 
         try {

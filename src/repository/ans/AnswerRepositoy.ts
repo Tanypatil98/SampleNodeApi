@@ -10,6 +10,10 @@ export class AnsRepository {
         return await Ans.find(condition);
     }
 
+    async findVideosWinnerList(condition: any) {
+        return await Ans.find(condition).sort({ createdAt: 'asc'});
+    }
+
     async deleteAns(condition: any) {
         return await Ans.deleteOne(condition);
     }

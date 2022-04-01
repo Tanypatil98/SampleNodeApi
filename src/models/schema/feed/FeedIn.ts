@@ -1,8 +1,8 @@
 import * as mongoose from 'mongoose';
-import {IAns} from '../../interface/IAns';
+import {IFeed} from '../../interface/IFeed';
 
-const userSchema = new mongoose.Schema({
-    userId:{
+const feedbackSchema = new mongoose.Schema({
+    uid:{
         type:String,
         required:true,
     },
@@ -18,17 +18,13 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
-    videoId:{
+    message:{
         type:String,
-        required:true,
-    },
-    answerId:{
-        type:String,
-        required:true,
+        required: true,
     },
     
 },
 { timestamps: true });
 
-const User = mongoose.model<IAns & mongoose.Document>('Answer', userSchema);
-export default User;
+const Feedback = mongoose.model<IFeed & mongoose.Document>('Feedback', feedbackSchema);
+export default Feedback;

@@ -92,6 +92,35 @@ export class VideoService {
         }
     }
 
+    async getWinnerList (req: any) {
+        try {
+            logger.info("Started Execution for findVideosWinnerList ==>");
+            const { videoId } = req.body;
+            let videoById: any;
+            try {
+                videoById = await videoRpo.findVideo({ _id: videoId });
+            } catch (err) {
+                responseObj.httpStatusCode = 500;
+                responseObj.message = "something went wrong.Could not find Video.";
+                throw new AppError(responseObj.message);
+            }
+            if (!videoById) {
+                responseObj.httpStatusCode = 404;
+                responseObj.message = "could not find for updating Video.";
+                throw new AppError(responseObj.message);
+            }
+            logger.info(videoById);
+            let condition = { videoId: videoId, answerId: videoById.questions[0].answer}
+            let videos = await ansRpo.findVideosWinnerList(condition);
+            return videos;
+        } catch (error) {
+            logger.error(
+                `Error in findVideosWinnerList method of VideoService ${error}`
+            );
+            throw error;
+        }
+    }
+
     async videoAns(req: any) {
         try {
             logger.info("Started Execution for videoAns ==>");
@@ -112,8 +141,27 @@ export class VideoService {
 
                 throw new AppError(responseObj.message);
             }
+            let existingUser;
+            try {
+                const condition = { _id: req.user._id }
+                existingUser = await authRpo.findUser(condition);
+            }
+            catch (err) {
+                logger.error("messerr");
+                throw err;
+            }
+            if (!existingUser) {
+                logger.error('User not Exist.');
+                responseObj.httpStatusCode = 401;
+                responseObj.message = "Plaese Register User.";
+
+                throw new AppError(responseObj.message);
+            }
             const createdAns = new Ans({
                 userId: req.user._id,
+                name: existingUser.name,
+                email: existingUser.email,
+                mobileNumber: existingUser.mobileNumber,
                 videoId: videoId,
                 answerId: answerId,
             });
