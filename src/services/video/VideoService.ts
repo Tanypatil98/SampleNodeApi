@@ -6,6 +6,7 @@ import ReponseMessage from "../../core/utility/ReponseMessage";
 import { AnsRepository } from "../../repository/ans/AnswerRepositoy";
 import  Ans  from "../../models/schema/ans/AnsIn";
 import { AuthRepository } from "../../repository/auth/AuthRepository";
+import { v4 as uuidv4 } from 'uuid';
 const responseObj = new ReponseMessage();
 const videoRpo = new VideoRepository();
 const ansRpo = new AnsRepository();
@@ -13,7 +14,7 @@ const authRpo = new AuthRepository();
 
 export class VideoService {
     async addVideo (req: any) {
-        const { title,description,videoUrl, videoPoster,duration,questions,isNewVideo,answerSubmitted } = req.body;
+        const { title,description,videoUrl, videoPoster,duration,question,answer,options } = req.body;
         let existingVideo;
         try {
             existingVideo = await videoRpo.findVideo({ title: title });
@@ -29,15 +30,27 @@ export class VideoService {
 
             throw new AppError(responseObj.message);
         }
+        let tempOptions = options.map((opt) => {
+            return {
+                id : uuidv4(),
+                text: opt
+            }
+        });
+        let questions = [{
+            id: uuidv4(),
+            questionTxt: question,
+            answer: tempOptions.filter((opt) => opt.text === answer)[0].id,
+            options: tempOptions
+        }];
         const createdVideo = new Video({
             title,
             description,
             videoUrl,
             videoPoster,
             duration,
-            answerSubmitted,
+            answerSubmitted: false,
             questions,
-            isNewVideo
+            isNewVideo: true
         });
         
         try {
