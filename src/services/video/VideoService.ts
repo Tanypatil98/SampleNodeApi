@@ -122,10 +122,9 @@ export class VideoService {
                 responseObj.message = "could not find for updating Video.";
                 throw new AppError(responseObj.message);
             }
-            logger.info(videoById);
             let condition = { videoId: videoId, answerId: videoById.questions[0].answer}
             let videos = await ansRpo.findVideosWinnerList(condition);
-            return videos;
+            return videos ? videos : [];
         } catch (error) {
             logger.error(
                 `Error in findVideosWinnerList method of VideoService ${error}`
