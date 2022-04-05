@@ -1,15 +1,13 @@
 import { AuthRepository } from "../../repository/auth/AuthRepository";
-import { OtpRepository } from "../../repository/otp/OtpRepository";
 import AppError from "../../core/utility/AppError";
 import logger from "../../core/Logger";
 const bcrypt = require('bcryptjs');
 import User from "../../models/schema/user/UserAuth";
-import Role from "../../models/schema/role/Role";
-import Otp from "../../models/schema/otp/Otp";
 import ReponseMessage from "../../core/utility/ReponseMessage";
-const generateOTP = require("../../core/utility/Otpgeneration");
+import HttpRequest from "../../core/utility/HttpRequest";
 import jwt from "jsonwebtoken";
 const responseObj = new ReponseMessage();
+const requestHttp = new HttpRequest(process.env.SMS_BASE_URL);
 const authRepo = new AuthRepository();
 
 export class AuthService {
@@ -98,24 +96,18 @@ export class AuthService {
                 throw new AppError(responseObj.message);
             }
 
-            const otp = generateOTP(6);
-            const createdOtp = new Otp({
-                otp,
-                mobileNumber,
-            });
-
-            try {
-                await createdOtp.save();
-            } catch (err) {
+            let resultOtp;
+            
+            resultOtp =await requestHttp.create(`https://www.smsalert.co.in/api/mverify.json?apikey=${process.env.SMS_APIKEY}&sender=${process.env.SMS_SENDERID}&mobileno=${mobileNumber}&template=Your authentication OTP for Trykro app is [otp].`,{})
+            if(resultOtp["status"] === "success"){
+                const res = "Otp Send on registered number.";
+                return res;
+            }else if(resultOtp["status"] === "error"){
                 responseObj.httpStatusCode = 401;
-                responseObj.message = "something went wrong.login failed.";
+                responseObj.message = resultOtp["description"]["desc"];
 
                 throw new AppError(responseObj.message);
             }
-
-
-            const res = "Otp Send on registered number. Otp: " + otp;
-            return res;
         } catch (error) {
             logger.error(`Error in login method of AuthService ${error}`);
             throw error;
@@ -124,24 +116,10 @@ export class AuthService {
 
     async verifyPhoneOtp(req: any) {
         try {
-            const otpRepo = new OtpRepository();
-            const { otp } = req;
-            const otpData = await otpRepo.findOtp({ otp: otp });
-            if (!otpData) {
-                responseObj.httpStatusCode = 400;
-                responseObj.message = "something went wrong.otp failed.";
-
-                throw new AppError(responseObj.message);
-            }
-            if (otpData.isDeleted === true) {
-                responseObj.httpStatusCode = 400;
-                responseObj.message = "Wrong Otp";
-
-                throw new AppError(responseObj.message);
-            }
+            const { otp, mobileNumber } = req;
             let identifiedUser;
             try {
-                identifiedUser = await authRepo.findUserById({ mobileNumber: otpData.mobileNumber });
+                identifiedUser = await authRepo.findUserById({ mobileNumber: mobileNumber });
             }
             catch (err) {
                 responseObj.httpStatusCode = 401;
@@ -149,28 +127,30 @@ export class AuthService {
 
                 throw new AppError(responseObj.message);
             }
-            // let token;
-            // try {
-            //     token = jwt.sign({ userId: identifiedUser.id, email: identifiedUser.email },
-            //         process.env.JWT_KEY,
-            //         { expiresIn: '24h' });
-            // } catch (err) {
-            //     responseObj.httpStatusCode = 500;
-            //     responseObj.message = err;
 
-            //     throw new AppError(responseObj.message);
-            // }
-            try {
-                otpData.isDeleted = true;
-                otpData.save();
-            }
-            catch (err) {
+            let resultVerifyOtp;
+            
+            resultVerifyOtp =await requestHttp.create(`https://www.smsalert.co.in/api/mverify.json?apikey=${process.env.SMS_APIKEY}&mobileno=${mobileNumber}&code=${otp}`, {});
+
+            if(resultVerifyOtp["status"] === "success"){
+                let token;
+                try {
+                    token = jwt.sign({ userId: identifiedUser.id, email: identifiedUser.email },
+                        process.env.JWT_KEY,
+                        { expiresIn: '24h' });
+                } catch (err) {
+                    responseObj.httpStatusCode = 500;
+                    responseObj.message = err;
+    
+                    throw new AppError(responseObj.message);
+                }
+                return {identifiedUser, token: token};
+            }else if(resultVerifyOtp["status"] === "error"){
                 responseObj.httpStatusCode = 401;
-                responseObj.message = "something went wrong.delete otp failed.";
+                responseObj.message = resultVerifyOtp["description"]["desc"];
 
                 throw new AppError(responseObj.message);
             }
-            return identifiedUser;
         } catch (error) {
             throw new AppError(error);
         }
