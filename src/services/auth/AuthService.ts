@@ -12,71 +12,71 @@ const authRepo = new AuthRepository();
 
 export class AuthService {
 
-    async signIn(req: any) {
-        try {
-            const responseObj = new ReponseMessage();
-            const authRepo = new AuthRepository();
-            const { email, password } = req;
-            let identifiedUser;
-            try {
-                identifiedUser = await authRepo.findUser({ email: email });
-            }
-            catch (err) {
-                responseObj.httpStatusCode = 401;
-                responseObj.message = "something went wrong.login failed.";
+    // async signIn(req: any) {
+    //     try {
+    //         const responseObj = new ReponseMessage();
+    //         const authRepo = new AuthRepository();
+    //         const { email, password } = req;
+    //         let identifiedUser;
+    //         try {
+    //             identifiedUser = await authRepo.findUser({ email: email });
+    //         }
+    //         catch (err) {
+    //             responseObj.httpStatusCode = 401;
+    //             responseObj.message = "something went wrong.login failed.";
 
-                throw new AppError(responseObj.message);
-            }
-
-
-            if (!identifiedUser) {
-                responseObj.httpStatusCode = 401;
-                responseObj.message = "User is not registered or enter wrong email,or sign up first.";
-
-                throw new AppError(responseObj.message);
-            }
-
-            let isValidPassword;
-            try {
-                isValidPassword = await bcrypt.compare(password, identifiedUser.password);
-            } catch (err) {
-                responseObj.httpStatusCode = 500;
-                responseObj.message = "Password do not Match.";
-
-                throw new AppError(responseObj.message);
-            }
+    //             throw new AppError(responseObj.message);
+    //         }
 
 
-            //console.log(identifiedUser.email);
-            if (!isValidPassword) {
-                responseObj.httpStatusCode = 401;
-                responseObj.message = "Password do not Match.";
+    //         if (!identifiedUser) {
+    //             responseObj.httpStatusCode = 401;
+    //             responseObj.message = "User is not registered or enter wrong email,or sign up first.";
 
-                throw new AppError(responseObj.message);
-            }
-            let token;
-            try {
-                token = jwt.sign({ userId: identifiedUser.id, email: identifiedUser.email },
-                    process.env.JWT_KEY,
-                    { expiresIn: '1h' });
-            } catch (err) {
-                responseObj.httpStatusCode = 500;
-                responseObj.message = err;
+    //             throw new AppError(responseObj.message);
+    //         }
 
-                throw new AppError(responseObj.message);
-            }
-            const res = { _id: identifiedUser.id, email: identifiedUser.email,name : identifiedUser.name,referral_id: identifiedUser.referral_id, token: token };
-            return res;
-        } catch (error) {
-            logger.error(`Error in login method of AuthService ${error}`);
-            throw error;
-        }
-    }
+    //         let isValidPassword;
+    //         try {
+    //             isValidPassword = await bcrypt.compare(password, identifiedUser.password);
+    //         } catch (err) {
+    //             responseObj.httpStatusCode = 500;
+    //             responseObj.message = "Password do not Match.";
+
+    //             throw new AppError(responseObj.message);
+    //         }
+
+
+    //         //console.log(identifiedUser.email);
+    //         if (!isValidPassword) {
+    //             responseObj.httpStatusCode = 401;
+    //             responseObj.message = "Password do not Match.";
+
+    //             throw new AppError(responseObj.message);
+    //         }
+    //         let token;
+    //         try {
+    //             token = jwt.sign({ userId: identifiedUser.id, email: identifiedUser.email },
+    //                 process.env.JWT_KEY,
+    //                 { expiresIn: '1h' });
+    //         } catch (err) {
+    //             responseObj.httpStatusCode = 500;
+    //             responseObj.message = err;
+
+    //             throw new AppError(responseObj.message);
+    //         }
+    //         const res = { _id: identifiedUser.id, email: identifiedUser.email,name : identifiedUser.name,referral_id: identifiedUser.referral_id, token: token };
+    //         return res;
+    //     } catch (error) {
+    //         logger.error(`Error in login method of AuthService ${error}`);
+    //         throw error;
+    //     }
+    // }
 
     async login(req: any) {
         try {
 
-            const { mobileNumber } = req;
+            const { name, mobileNumber, referral_id } = req;
             let identifiedUser;
             try {
                 identifiedUser = await authRepo.findUser({ mobileNumber: mobileNumber });
@@ -89,11 +89,53 @@ export class AuthService {
             }
 
 
-            if (!identifiedUser) {
+            if (identifiedUser) {
                 responseObj.httpStatusCode = 401;
-                responseObj.message = "User is not registered or enter wrong number,or sign up first.";
+                responseObj.message = "User Already registered with this number.";
 
                 throw new AppError(responseObj.message);
+            }
+
+            let lengthUser;
+            try {
+                lengthUser = await authRepo.findAllUser();
+            }
+            catch (err) {
+                logger.error("messerr");
+                throw err;
+            }
+
+            let createdUser;
+            if(referral_id && /TRY/.test(referral_id)){
+                createdUser = new User({
+                    name,
+                    mobileNumber,
+                    referral_id: `TRY0${lengthUser.length+1}`,
+                    referrer: referral_id
+                });    
+            }else  if(!referral_id){
+            createdUser = new User({
+                name,
+                mobileNumber,
+                referral_id: `TRY0${lengthUser.length+1}`
+            });
+            }else{
+                responseObj.httpStatusCode = 401;
+                responseObj.message = "User referral id not Exist";
+
+                throw new AppError(responseObj.message);
+            }
+            try {
+                createdUser.save((err: any, user: any) => {
+                    if (err) {
+                        throw new AppError(err);
+                    }
+                });
+
+            }
+            catch (err) {
+                logger.error("err1");
+                throw new AppError(err);
             }
 
             let resultOtp;
@@ -135,7 +177,7 @@ export class AuthService {
             if(resultVerifyOtp["status"] === "success"){
                 let token;
                 try {
-                    token = jwt.sign({ userId: identifiedUser.id, email: identifiedUser.email },
+                    token = jwt.sign({ userId: identifiedUser.id },
                         process.env.JWT_KEY,
                         { expiresIn: '24h' });
                 } catch (err) {
@@ -156,122 +198,122 @@ export class AuthService {
         }
     };
 
-    async registerAdmin(user: any) {
-        try {
-            logger.info("Started Execution for registerUser ==>");
-            const { name, email, mobileNumber, password, referral_id } = user;
-            const responseObj = new ReponseMessage();
-            const authRepo = new AuthRepository();
-            let existingUser;
-            try {
-                const condition = { email: email }
-                existingUser = await authRepo.findUser(condition);
-            }
-            catch (err) {
-                logger.error("messerr");
-                throw err;
-            }
-            if (existingUser) {
-                logger.error('User Exist.');
-                responseObj.httpStatusCode = 401;
-                responseObj.message = "User Email Alredy Exist";
+    // async registerAdmin(user: any) {
+    //     try {
+    //         logger.info("Started Execution for registerUser ==>");
+    //         const { name, email, mobileNumber, password, referral_id } = user;
+    //         const responseObj = new ReponseMessage();
+    //         const authRepo = new AuthRepository();
+    //         let existingUser;
+    //         try {
+    //             const condition = { email: email }
+    //             existingUser = await authRepo.findUser(condition);
+    //         }
+    //         catch (err) {
+    //             logger.error("messerr");
+    //             throw err;
+    //         }
+    //         if (existingUser) {
+    //             logger.error('User Exist.');
+    //             responseObj.httpStatusCode = 401;
+    //             responseObj.message = "User Email Alredy Exist";
 
-                throw new AppError(responseObj.message);
-            }
-            let existingUserNumber;
-            try {
-                const condition = { mobileNumber: mobileNumber }
-                existingUserNumber = await authRepo.findUser(condition);
-            }
-            catch (err) {
-                logger.error("messerr");
-                throw err;
-            }
-            if (existingUserNumber) {
-                logger.error('User Exist.');
-                responseObj.httpStatusCode = 401;
-                responseObj.message = "User Phone Number Alredy Exist";
+    //             throw new AppError(responseObj.message);
+    //         }
+    //         let existingUserNumber;
+    //         try {
+    //             const condition = { mobileNumber: mobileNumber }
+    //             existingUserNumber = await authRepo.findUser(condition);
+    //         }
+    //         catch (err) {
+    //             logger.error("messerr");
+    //             throw err;
+    //         }
+    //         if (existingUserNumber) {
+    //             logger.error('User Exist.');
+    //             responseObj.httpStatusCode = 401;
+    //             responseObj.message = "User Phone Number Alredy Exist";
 
-                throw new AppError(responseObj.message);
-            }
-            let lengthUser;
-            try {
-                lengthUser = await authRepo.findAllUser();
-            }
-            catch (err) {
-                logger.error("messerr");
-                throw err;
-            }
-            try {
-                await this.checkPassword(password);
-            } catch (err) {
-                throw new AppError("Password min length 8, must include Special Character, number");
-            }
-            let hashedPassword;
-            try {
-                hashedPassword = await bcrypt.hash(password, 12);
-            } catch (err) {
-                responseObj.httpStatusCode = 500;
-                responseObj.message = "Could not create user,please try again.";
+    //             throw new AppError(responseObj.message);
+    //         }
+    //         let lengthUser;
+    //         try {
+    //             lengthUser = await authRepo.findAllUser();
+    //         }
+    //         catch (err) {
+    //             logger.error("messerr");
+    //             throw err;
+    //         }
+    //         try {
+    //             await this.checkPassword(password);
+    //         } catch (err) {
+    //             throw new AppError("Password min length 8, must include Special Character, number");
+    //         }
+    //         let hashedPassword;
+    //         try {
+    //             hashedPassword = await bcrypt.hash(password, 12);
+    //         } catch (err) {
+    //             responseObj.httpStatusCode = 500;
+    //             responseObj.message = "Could not create user,please try again.";
 
-                throw new AppError(responseObj.message);
-            }
-            let createdUser;
-            if(referral_id && /TRY/.test(referral_id)){
-                createdUser = new User({
-                    name,
-                    email,
-                    mobileNumber,
-                    password: hashedPassword,
-                    referral_id: `TRY0${lengthUser.length+1}`,
-                    referrer: referral_id
-                });    
-            }else  if(!referral_id){
-            createdUser = new User({
-                name,
-                email,
-                mobileNumber,
-                password: hashedPassword,
-                referral_id: `TRY0${lengthUser.length+1}`
-            });
-        }else{
-            responseObj.httpStatusCode = 401;
-                responseObj.message = "User referral id not Exist";
+    //             throw new AppError(responseObj.message);
+    //         }
+    //         let createdUser;
+    //         if(referral_id && /TRY/.test(referral_id)){
+    //             createdUser = new User({
+    //                 name,
+    //                 email,
+    //                 mobileNumber,
+    //                 password: hashedPassword,
+    //                 referral_id: `TRY0${lengthUser.length+1}`,
+    //                 referrer: referral_id
+    //             });    
+    //         }else  if(!referral_id){
+    //         createdUser = new User({
+    //             name,
+    //             email,
+    //             mobileNumber,
+    //             password: hashedPassword,
+    //             referral_id: `TRY0${lengthUser.length+1}`
+    //         });
+    //         }else{
+    //             responseObj.httpStatusCode = 401;
+    //             responseObj.message = "User referral id not Exist";
 
-                throw new AppError(responseObj.message);
-        }
-            try {
-                createdUser.save((err: any, user: any) => {
-                    if (err) {
-                        throw new AppError(err);
-                    }
-                });
+    //             throw new AppError(responseObj.message);
+    //         }
+    //         try {
+    //             createdUser.save((err: any, user: any) => {
+    //                 if (err) {
+    //                     throw new AppError(err);
+    //                 }
+    //             });
 
-            }
-            catch (err) {
-                logger.error("err1");
-                throw new AppError(err);
-            }
-            let token;
-            try {
-                token = jwt.sign({ userId: createdUser.id, email: createdUser.email },
-                    process.env.JWT_KEY,
-                    { expiresIn: '24h' });
-            } catch (err) {
-                responseObj.httpStatusCode = 500;
-                responseObj.message = "singn up Failed.plese try again";
+    //         }
+    //         catch (err) {
+    //             logger.error("err1");
+    //             throw new AppError(err);
+    //         }
+    //         let token;
+    //         try {
+    //             token = jwt.sign({ userId: createdUser.id, email: createdUser.email },
+    //                 process.env.JWT_KEY,
+    //                 { expiresIn: '24h' });
+    //         } catch (err) {
+    //             responseObj.httpStatusCode = 500;
+    //             responseObj.message = "singn up Failed.plese try again";
 
-                throw new AppError(responseObj.message);
-            }
-            const res = { user:{_id:createdUser.id, name: createdUser.name, email: createdUser.email, mobileNumber: createdUser.mobileNumber, referral_id: createdUser.referral_id},token:token };
-            return res;
-        } catch (error) {
-            logger.error(
-                `Error in registerUser method of AuthService ${error}`
-            );
-            throw error;
-        }
-    }
+    //             throw new AppError(responseObj.message);
+    //         }
+    //         const res = { user:{_id:createdUser.id, name: createdUser.name, email: createdUser.email, mobileNumber: createdUser.mobileNumber, referral_id: createdUser.referral_id},token:token };
+    //         return res;
+    //     } catch (error) {
+    //         logger.error(
+    //             `Error in registerUser method of AuthService ${error}`
+    //         );
+    //         throw error;
+    //     }
+    // }
 
     async findUserById(userId: any) {
         try {
@@ -280,7 +322,7 @@ export class AuthService {
             let userIdDetails = await authRepo.findUserById({ _id: userId });
             let token;
             try {
-                token = jwt.sign({ userId: userIdDetails._id, email: userIdDetails.email },
+                token = jwt.sign({ userId: userIdDetails._id },
                     process.env.JWT_KEY,
                     { expiresIn: '1h' });
             } catch (err) {
@@ -312,37 +354,37 @@ export class AuthService {
         }
     }
 
-    async forgotPassword(user: any) {
-        try {
-            logger.info("Started Execution for Forgot Password ==>");
-            const { mobileNumber, password } = user;
-            const responseObj = new ReponseMessage();
-            const authRepo = new AuthRepository();
-            let existingUser;
-            try {
-                const condition = { mobileNumber: mobileNumber }
-                existingUser = await authRepo.findUser(condition);
-            }
-            catch (err) {
-                logger.error("messerr");
-                throw err;
-            }
-            if (!existingUser) {
-                logger.error('User not Exist.');
-                responseObj.httpStatusCode = 401;
-                responseObj.message = "Plaese Register User.";
+    // async forgotPassword(user: any) {
+    //     try {
+    //         logger.info("Started Execution for Forgot Password ==>");
+    //         const { mobileNumber, password } = user;
+    //         const responseObj = new ReponseMessage();
+    //         const authRepo = new AuthRepository();
+    //         let existingUser;
+    //         try {
+    //             const condition = { mobileNumber: mobileNumber }
+    //             existingUser = await authRepo.findUser(condition);
+    //         }
+    //         catch (err) {
+    //             logger.error("messerr");
+    //             throw err;
+    //         }
+    //         if (!existingUser) {
+    //             logger.error('User not Exist.');
+    //             responseObj.httpStatusCode = 401;
+    //             responseObj.message = "Plaese Register User.";
 
-                throw new AppError(responseObj.message);
-            }
-            let response =await this.updateUserById(existingUser._id, {newPassword: password});
-            return "Password Successfully Updated.";
-        } catch (error) {
-            logger.error(
-                `Error in findUserById method of AuthService ${error}`
-            );
-            throw error;
-        }
-    }
+    //             throw new AppError(responseObj.message);
+    //         }
+    //         let response =await this.updateUserById(existingUser._id, {newPassword: password});
+    //         return "Password Successfully Updated.";
+    //     } catch (error) {
+    //         logger.error(
+    //             `Error in findUserById method of AuthService ${error}`
+    //         );
+    //         throw error;
+    //     }
+    // }
 
     async deleteUserById(userId: any) {
         try {
@@ -360,7 +402,7 @@ export class AuthService {
     async updateUserById(userId: any, user: any) {
         try {
             logger.info("Started Execution for updateUserById ==>");
-            const { name, email, mobileNumber, newPassword } = user;
+            const { name, email, mobileNumber } = user;
             const responseObj = new ReponseMessage();
             const authRepo = new AuthRepository();
             let userById;
@@ -376,28 +418,11 @@ export class AuthService {
                 responseObj.message = "could not find user for updating user.";
                 throw new AppError(responseObj.message);
             }
-            let hashedPassword;
-            if (newPassword) {
-                try {
-                    hashedPassword = await bcrypt.hash(newPassword, 12);
-                } catch (err) {
-                    responseObj.httpStatusCode = 500;
-                    responseObj.message = "Could not update user password,please try again.";
-
-                    throw new AppError(responseObj.message);
-                }
-            }
             
             try {
                 if(name) userById.name = name;
                 if(email) userById.email = email;
                 if(mobileNumber) userById.mobileNumber = mobileNumber;
-                if(newPassword){
-                    userById.password = hashedPassword;
-                }
-                if(user.file){
-                    userById.image = user.file.path;
-                }
                     try {
                         userById.save();
                     } catch (err) {
@@ -420,10 +445,10 @@ export class AuthService {
         }
     }
 
-    checkPassword(str: any) {
-        const re = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
-        return re.test(str);
-    }
+    // checkPassword(str: any) {
+    //     const re = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+    //     return re.test(str);
+    // }
 
 
 }

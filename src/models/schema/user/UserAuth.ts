@@ -8,16 +8,12 @@ const userSchema = new mongoose.Schema({
     },
     email:{
         type:String,
-        required:true,
-        unique:true
+        unique:true,
+        default:""
     },
     mobileNumber:{
         type:String,
         required:true,
-    },
-    password:{
-        type:String,
-        minlength:6
     },
     referral_id:{
         type:String,

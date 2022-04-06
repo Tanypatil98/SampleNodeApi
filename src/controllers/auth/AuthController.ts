@@ -6,58 +6,58 @@ import { Request, Response, NextFunction } from "express";
 
 
 export default class AuthController extends BaseController {
-    async signIn(req: Request, res: Response, next: NextFunction) {
-        try {
-            logger.info(" Starting Sign In");
-            const authService = new AuthService();
-            const responseObj = new ReponseMessage();
-            const dataIn = await authService.signIn(req.body);
-            logger.debug(dataIn);
-            if (dataIn) {
-                responseObj.data = dataIn;
-                BaseController.createResponse.success(res, responseObj);
-            }
-        } catch (error) {
-            logger.error(error);
-            next(error);
-        }
-    }
-    async registerAdmin(req: Request, res: Response, next: NextFunction) {
-        try {
-            logger.info(" Starting Registeration");
-            const authService = new AuthService();
-            const responseObj = new ReponseMessage();
-            const data = await authService.registerAdmin(req.body);
-            logger.debug(data);
-            if (data) {
-                responseObj.httpStatusCode = 200;
-                responseObj.message = "Registered Successfully";
-                responseObj.data = data;
-                BaseController.createResponse.success(res, responseObj);
-            }
-        } catch (error) {
-            logger.error(error);
-            next(error);
-        }
-    }
+    // async signIn(req: Request, res: Response, next: NextFunction) {
+    //     try {
+    //         logger.info(" Starting Sign In");
+    //         const authService = new AuthService();
+    //         const responseObj = new ReponseMessage();
+    //         const dataIn = await authService.signIn(req.body);
+    //         logger.debug(dataIn);
+    //         if (dataIn) {
+    //             responseObj.data = dataIn;
+    //             BaseController.createResponse.success(res, responseObj);
+    //         }
+    //     } catch (error) {
+    //         logger.error(error);
+    //         next(error);
+    //     }
+    // }
+    // async registerAdmin(req: Request, res: Response, next: NextFunction) {
+    //     try {
+    //         logger.info(" Starting Registeration");
+    //         const authService = new AuthService();
+    //         const responseObj = new ReponseMessage();
+    //         const data = await authService.registerAdmin(req.body);
+    //         logger.debug(data);
+    //         if (data) {
+    //             responseObj.httpStatusCode = 200;
+    //             responseObj.message = "Registered Successfully";
+    //             responseObj.data = data;
+    //             BaseController.createResponse.success(res, responseObj);
+    //         }
+    //     } catch (error) {
+    //         logger.error(error);
+    //         next(error);
+    //     }
+    // }
 
-    async forgotPassword(req: Request, res: Response, next: NextFunction) {
-        try {
-            logger.info(" Starting Forgot Passord");
-            const authService = new AuthService();
-            const responseObj = new ReponseMessage();
-            const data = await authService.forgotPassword(req.body);
-            logger.debug(data);
-            if (data) {
-                responseObj.httpStatusCode = 200;
-                responseObj.message = data;
-                BaseController.createResponse.success(res, responseObj);
-            }
-        } catch (error) {
-            logger.error(error);
-            next(error);
-        }
-    }
+    // async forgotPassword(req: Request, res: Response, next: NextFunction) {
+    //     try {
+    //         logger.info(" Starting Forgot Passord");
+    //         const authService = new AuthService();
+    //         const responseObj = new ReponseMessage();
+    //         const data = await authService.forgotPassword(req.body);
+    //         logger.debug(data);
+    //         if (data) {
+    //             responseObj.httpStatusCode = 200;
+    //             responseObj.message = data;
+    //             BaseController.createResponse.success(res, responseObj);
+    //         }
+    //     } catch (error) {
+    //         logger.error(error);
+    //         next(error);
+    //     }
+    // }
 
     async getUserById(req: Request, res: Response, next: NextFunction) {
         try {
