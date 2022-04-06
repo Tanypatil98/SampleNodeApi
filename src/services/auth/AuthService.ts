@@ -77,67 +77,68 @@ export class AuthService {
         try {
 
             const { name, mobileNumber, referral_id } = req;
-            let identifiedUser;
-            try {
-                identifiedUser = await authRepo.findUser({ mobileNumber: mobileNumber });
+            if(name){
+                let identifiedUser;
+                try {
+                    identifiedUser = await authRepo.findUser({ mobileNumber: mobileNumber });
+                }
+                catch (err) {
+                    responseObj.httpStatusCode = 401;
+                    responseObj.message = "something went wrong.login failed.";
+
+                    throw new AppError(responseObj.message);
+                }
+
+
+                if (identifiedUser) {
+                    responseObj.httpStatusCode = 401;
+                    responseObj.message = "User Already registered with this number.";
+
+                    throw new AppError(responseObj.message);
+                }
+
+                let lengthUser;
+                try {
+                    lengthUser = await authRepo.findAllUser();
+                }
+                catch (err) {
+                    logger.error("messerr");
+                    throw err;
+                }
+
+                let createdUser;
+                if(referral_id && /TRY/.test(referral_id)){
+                    createdUser = new User({
+                        name,
+                        mobileNumber,
+                        referral_id: `TRY0${lengthUser.length+1}`,
+                        referrer: referral_id
+                    });    
+                }else  if(!referral_id){
+                    createdUser = new User({
+                        name,
+                        mobileNumber,
+                        referral_id: `TRY0${lengthUser.length+1}`
+                    });
+                }else{
+                    responseObj.httpStatusCode = 401;
+                    responseObj.message = "User referral id not Exist";
+
+                    throw new AppError(responseObj.message);
+                }
+                try {
+                    createdUser.save((err: any, user: any) => {
+                        if (err) {
+                            throw new AppError(err);
+                        }
+                    });
+
+                }
+                catch (err) {
+                    logger.error("err1");
+                    throw new AppError(err);
+                }
             }
-            catch (err) {
-                responseObj.httpStatusCode = 401;
-                responseObj.message = "something went wrong.login failed.";
-
-                throw new AppError(responseObj.message);
-            }
-
-
-            if (identifiedUser) {
-                responseObj.httpStatusCode = 401;
-                responseObj.message = "User Already registered with this number.";
-
-                throw new AppError(responseObj.message);
-            }
-
-            let lengthUser;
-            try {
-                lengthUser = await authRepo.findAllUser();
-            }
-            catch (err) {
-                logger.error("messerr");
-                throw err;
-            }
-
-            let createdUser;
-            if(referral_id && /TRY/.test(referral_id)){
-                createdUser = new User({
-                    name,
-                    mobileNumber,
-                    referral_id: `TRY0${lengthUser.length+1}`,
-                    referrer: referral_id
-                });    
-            }else  if(!referral_id){
-            createdUser = new User({
-                name,
-                mobileNumber,
-                referral_id: `TRY0${lengthUser.length+1}`
-            });
-            }else{
-                responseObj.httpStatusCode = 401;
-                responseObj.message = "User referral id not Exist";
-
-                throw new AppError(responseObj.message);
-            }
-            try {
-                createdUser.save((err: any, user: any) => {
-                    if (err) {
-                        throw new AppError(err);
-                    }
-                });
-
-            }
-            catch (err) {
-                logger.error("err1");
-                throw new AppError(err);
-            }
-
             let resultOtp;
             
             resultOtp =await requestHttp.create(`https://www.smsalert.co.in/api/mverify.json?apikey=${process.env.SMS_APIKEY}&sender=${process.env.SMS_SENDERID}&mobileno=${mobileNumber}&template=Your authentication OTP for Trykro app is [otp].`,{})
