@@ -422,7 +422,13 @@ export class AuthService {
             
             try {
                 if(name) userById.name = name;
-                if(email) userById.email = email;
+                if(email && !userById.email) {
+                    userById.email = email
+                }else{
+                    responseObj.httpStatusCode = 500;
+                    responseObj.message = "Email Already Registered.";
+                    throw new AppError(responseObj.message);
+                }
                 if(mobileNumber) userById.mobileNumber = mobileNumber;
                     try {
                         userById.save();
