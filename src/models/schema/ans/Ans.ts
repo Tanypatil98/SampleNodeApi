@@ -5,7 +5,6 @@ import { ansCollection } from "../../../constants/CollectionConstants";
 export const UserSchema = new Schema({
     userId: String,
     name: String,
-    email: String,
     mobileNumber: String,
     videoId: String,
     answerId: String,

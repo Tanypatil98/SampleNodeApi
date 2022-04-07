@@ -172,7 +172,6 @@ export class VideoService {
             const createdAns = new Ans({
                 userId: req.user._id,
                 name: existingUser.name,
-                email: existingUser.email,
                 mobileNumber: existingUser.mobileNumber,
                 videoId: videoId,
                 answerId: answerId,

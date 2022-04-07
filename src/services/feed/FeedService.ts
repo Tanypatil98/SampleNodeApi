@@ -33,7 +33,6 @@ export class FeedService {
             let createdFeedback = new Feed({
                 uid: existingUser._id,
                 name: existingUser.name,
-                email: existingUser.email,
                 mobileNumber: existingUser.mobileNumber,
                 message: message,
             });
