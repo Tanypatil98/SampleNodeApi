@@ -138,7 +138,27 @@ export class AuthService {
                     logger.error("err1");
                     throw new AppError(err);
                 }
+            }else{
+                let identifiedUser;
+                try {
+                    identifiedUser = await authRepo.findUser({ mobileNumber: mobileNumber });
+                }
+                catch (err) {
+                    responseObj.httpStatusCode = 401;
+                    responseObj.message = "something went wrong.login failed.";
+
+                    throw new AppError(responseObj.message);
+                }
+
+
+                if (!identifiedUser) {
+                    responseObj.httpStatusCode = 200;
+                    responseObj.message = "User not registered on this number.";
+
+                    throw new AppError(responseObj.message);
+                }
             }
+
             let resultOtp;
             
             resultOtp =await requestHttp.create(`https://www.smsalert.co.in/api/mverify.json?apikey=${process.env.SMS_APIKEY}&sender=${process.env.SMS_SENDERID}&mobileno=${mobileNumber}&template=Your authentication OTP for Trykro app is [otp].`,{})
