@@ -403,7 +403,7 @@ export class AuthService {
     async updateUserById(userId: any, user: any) {
         try {
             logger.info("Started Execution for updateUserById ==>");
-            const { name, email, mobileNumber } = user;
+            const { name, mobileNumber } = user;
             const responseObj = new ReponseMessage();
             const authRepo = new AuthRepository();
             let userById;
@@ -422,13 +422,13 @@ export class AuthService {
             
             try {
                 if(name) userById.name = name;
-                if(email && !userById.email) {
-                    userById.email = email
-                }else{
-                    responseObj.httpStatusCode = 500;
-                    responseObj.message = "Email Already Registered.";
-                    throw new AppError(responseObj.message);
-                }
+                // if(email && !userById.email) {
+                //     userById.email = email
+                // }else{
+                //     responseObj.httpStatusCode = 500;
+                //     responseObj.message = "Email Already Registered.";
+                //     throw new AppError(responseObj.message);
+                // }
                 if(mobileNumber) userById.mobileNumber = mobileNumber;
                     try {
                         userById.save();
