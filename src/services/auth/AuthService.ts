@@ -204,10 +204,16 @@ export class AuthService {
                 } catch (err) {
                     responseObj.httpStatusCode = 500;
                     responseObj.message = err;
-    
                     throw new AppError(responseObj.message);
                 }
-                return {identifiedUser, token: token};
+                if(resultVerifyOtp["description"]["desc"] === "Code Matched successfully."){
+                    return {identifiedUser, token: token};
+                }else{
+                    responseObj.httpStatusCode = 401;
+                    responseObj.message = resultVerifyOtp["description"]["desc"];
+
+                    throw new AppError(responseObj.message);
+                }
             }else if(resultVerifyOtp["status"] === "error"){
                 responseObj.httpStatusCode = 401;
                 responseObj.message = resultVerifyOtp["description"]["desc"];

@@ -18,7 +18,7 @@ export default class AuthController extends BaseController {
             res.setHeader('x-total-count', videosLe.length);
             responseObj.httpStatusCode = 200;
             responseObj.message = "Videos Succesfully.";
-            responseObj.data = videos;
+            responseObj.data = {videos: videos, videoLength: videosLe.length};
             BaseController.createResponse.success(res, responseObj);
         } catch (error) {
             logger.error(

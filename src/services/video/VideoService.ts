@@ -123,8 +123,9 @@ export class VideoService {
                 throw new AppError(responseObj.message);
             }
             let condition = { videoId: videoId, answerId: videoById.questions[0].answer}
-            let videos = await ansRpo.findVideosWinnerList(condition);
-            return videos ? videos : [];
+            let videosCorrectAns = await ansRpo.findVideosWinnerList(condition);
+            let videosWrongAns = await ansRpo.findVideosWinnerList({videoId: videoId});
+            return (videosCorrectAns || videosWrongAns) ? {videosCorrectAns:videosCorrectAns,videosWrongAns:videosWrongAns.filter((obj) => obj.answerId !== videoById.questions[0].answer)} : [];
         } catch (error) {
             logger.error(
                 `Error in findVideosWinnerList method of VideoService ${error}`
