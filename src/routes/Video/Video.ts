@@ -9,7 +9,7 @@ export class VideoRoutes {
                 router.post("/", controller.getVideos);
                 router.post("/newVideo", authorization(), controller.video);
                 router.post("/answer", authorization(), controller.videoAns);
-                router.get("/getWinnerList",authorization(),  controller.getWinnerList);
+                router.post("/getWinnerList",authorization(),  controller.getWinnerList);
                 // router.put("/:vid",authorization(), fileUpload.single('image'), controller.updateVideoById);
                 // router.delete("/:vid",authorization(),  controller.deleteVideoById);
                 return router;
