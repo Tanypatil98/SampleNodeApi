@@ -5,6 +5,7 @@ import { feedbackCollection } from "../../../constants/CollectionConstants";
 export const FeedbackSchema = new Schema({
     uid: String,
     name: String,
+    email: String,
     mobileNumber: String,
     message: String,
 });

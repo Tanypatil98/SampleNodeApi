@@ -170,13 +170,25 @@ export class VideoService {
 
                 throw new AppError(responseObj.message);
             }
-            const createdAns = new Ans({
-                userId: req.user._id,
-                name: existingUser.name,
-                mobileNumber: existingUser.mobileNumber,
-                videoId: videoId,
-                answerId: answerId,
-            });
+            let createdAns;
+            if(existingUser.email){
+                createdAns = new Ans({
+                    userId: req.user._id,
+                    name: existingUser.name,
+                    email: existingUser.email,
+                    mobileNumber: existingUser.mobileNumber,
+                    videoId: videoId,
+                    answerId: answerId,
+                });
+            }else{
+                createdAns = new Ans({
+                    userId: req.user._id,
+                    name: existingUser.name,
+                    mobileNumber: existingUser.mobileNumber,
+                    videoId: videoId,
+                    answerId: answerId,
+                });
+            }
             try{
                 createdAns.save((err: any, user: any) => {
                     if (err) {

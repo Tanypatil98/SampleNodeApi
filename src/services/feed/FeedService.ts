@@ -30,12 +30,23 @@ export class FeedService {
 
                 throw new AppError(responseObj.message);
             }
-            let createdFeedback = new Feed({
-                uid: existingUser._id,
-                name: existingUser.name,
-                mobileNumber: existingUser.mobileNumber,
-                message: message,
-            });
+            let createdFeedback;
+            if(existingUser.email){
+                createdFeedback = new Feed({
+                    uid: existingUser._id,
+                    name: existingUser.name,
+                    email: existingUser.email,
+                    mobileNumber: existingUser.mobileNumber,
+                    message: message,
+                });
+            }else{
+                createdFeedback = new Feed({
+                    uid: existingUser._id,
+                    name: existingUser.name,
+                    mobileNumber: existingUser.mobileNumber,
+                    message: message,
+                });
+            }
             try {
                 createdFeedback.save((err: any, user: any) => {
                     if (err) {

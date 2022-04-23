@@ -3,6 +3,7 @@ import mongoose, { Document, Schema } from "mongoose";
 import { userCollection } from "../../../constants/CollectionConstants";
 
 export const UserSchema = new Schema({
+    email: String,
     name: String,
     mobileNumber: String,
     referral_id: String,

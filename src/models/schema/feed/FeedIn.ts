@@ -10,6 +10,9 @@ const feedbackSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
+    email:{
+        type:String,
+    },
     mobileNumber:{
         type:String,
         required:true,
